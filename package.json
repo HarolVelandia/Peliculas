@@ -1,0 +1,23 @@
+{
+  "name": "peliculas",
+  "version": "1.0.0",
+  "description": "peliculas api nodejs",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "set DEBUG=app* & nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "debug": "^4.4.1",
+    "dotenv": "^17.2.2",
+    "excel4node": "^1.8.2",
+    "express": "^5.1.0",
+    "http-errors": "^2.0.0",
+    "mongodb": "^6.19.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
