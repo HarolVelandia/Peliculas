@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { MongoClient } from 'mongodb';
 import debugLib from "debug";
 import { Config } from "../config/index.js";
 

@@ -3,14 +3,66 @@ import { ObjectId } from "mongodb";
 
 const COLLECTION = "media";
 
+// 🔹 Función para hacer los lookups (evitamos repetir código)
+const buildLookups = () => [
+  {
+    $lookup: {
+      from: "genero",
+      localField: "generoId",
+      foreignField: "_id",
+      as: "genero",
+    },
+  },
+  { $unwind: { path: "$genero", preserveNullAndEmptyArrays: true } },
+
+  {
+    $lookup: {
+      from: "director",
+      localField: "directorId",
+      foreignField: "_id",
+      as: "director",
+    },
+  },
+  { $unwind: { path: "$director", preserveNullAndEmptyArrays: true } },
+
+  {
+    $lookup: {
+      from: "productora",
+      localField: "productoraId",
+      foreignField: "_id",
+      as: "productora",
+    },
+  },
+  { $unwind: { path: "$productora", preserveNullAndEmptyArrays: true } },
+
+  {
+    $lookup: {
+      from: "tipo",
+      localField: "tipoId",
+      foreignField: "_id",
+      as: "tipo",
+    },
+  },
+  { $unwind: { path: "$tipo", preserveNullAndEmptyArrays: true } },
+];
+
 const getAll = async () => {
   const collection = await Database(COLLECTION);
-  return await collection.find({}).toArray();
+  return await collection.aggregate(buildLookups()).toArray();
 };
 
 const getById = async (id) => {
+  if (!ObjectId.isValid(id)) throw new Error("ID inválido");
+
   const collection = await Database(COLLECTION);
-  return await collection.findOne({ _id: new ObjectId(id) });
+  const result = await collection
+    .aggregate([
+      { $match: { _id: new ObjectId(id) } },
+      ...buildLookups(),
+    ])
+    .toArray();
+
+  return result[0] || null;
 };
 
 const create = async (media) => {
@@ -20,7 +72,7 @@ const create = async (media) => {
   media.fecha_creacion = new Date();
   media.fecha_actualizacion = new Date();
 
-  // Validar referencias (género, director, productora, tipo)
+  // Validar referencias
   if (media.generoId) media.generoId = new ObjectId(media.generoId);
   if (media.directorId) media.directorId = new ObjectId(media.directorId);
   if (media.productoraId) media.productoraId = new ObjectId(media.productoraId);
@@ -45,6 +97,8 @@ const update = async (id, media) => {
 };
 
 const remove = async (id) => {
+  if (!ObjectId.isValid(id)) throw new Error("ID inválido");
+
   const collection = await Database(COLLECTION);
   await collection.deleteOne({ _id: new ObjectId(id) });
   return true;

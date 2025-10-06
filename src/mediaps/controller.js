@@ -21,22 +21,29 @@ export default class MediaController {
 
   static async crearMedia(req, res) {
     try {
-      let id = await mediaService.create(req.body);
-      res.status(201).json({ id });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+    const media = req.body;
+    if (req.file) {
+      media.imagen = `/uploads/${req.file.filename}`; // guardamos la ruta
     }
+    let id = await mediaService.create(media);
+    res.status(201).json({ id });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
+}
 
   static async actualizarMedia(req, res) {
     try {
-      await mediaService.update(req.params.id, req.body);
-      res.json({ message: "Media actualizada" });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+    const media = req.body;
+    if (req.file) {
+      media.imagen = `/uploads/${req.file.filename}`;
     }
+    await mediaService.update(req.params.id, media);
+    res.json({ message: "Media actualizada" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
+}
   static async eliminarMedia(req, res) {
     try {
       await mediaService.remove(req.params.id);
